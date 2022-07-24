@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
 import {
     Button,
@@ -38,19 +37,21 @@ const withTopMargin = px => ({ marginTop: `${px}px` });
     This component contains the contents that are shown
     inside the box of the Sign-In Page - email address, password, etc.
 */
-export const SignInForm = () => {
+export const SignInForm = (props) => {
     const [emailValue, setEmailValue] = useState('');
     const [passwordValue, setPasswordValue] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
     const [showModal, setShowModal] = useState(false);
 
-    const history = useHistory();
+
 
     const onSignInClicked = async () => {
         // Firebase code goes here
         try {
-            await signIn(emailValue, passwordValue);
-            history.push('/');
+            const res = await signIn(emailValue, passwordValue);
+            if(res) {
+                props.history.push('/');
+            }
         } catch(e) {
             setErrorMessage(e.message);
         }
@@ -64,13 +65,11 @@ export const SignInForm = () => {
     return (
         <Form>
             <Heading>My Reservations App</Heading>
-            {errorMessage
-                ? <ErrorMessage style={{
+            {errorMessage && <ErrorMessage style={{
                     marginBottom: '16px',
                 }}>
                     {errorMessage}
-                </ErrorMessage>
-                : null}
+                </ErrorMessage>}
             <FullWidthTextInput
                 name='email'
                 value={emailValue}
@@ -99,7 +98,7 @@ export const SignInForm = () => {
             >Sign In With Google</FullWidthButton>
             <CreateAccountButton
                 type='transparent'
-                onClick={() => history.push('/create-account')}
+                onClick={() => props.history.push('/create-account')}
             >Create an account</CreateAccountButton>
             <Modal
                 isOpen={showModal}
